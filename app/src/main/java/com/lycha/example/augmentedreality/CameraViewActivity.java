@@ -113,15 +113,19 @@ public class CameraViewActivity extends Activity implements
 		return false;
 	}
 
+	private void updateDescription() {
+		descriptionTextView.setText(mPoi.getPoiName() + " azimuthTeoretical "
+				+ mAzimuthTeoretical + " azimuthReal " + mAzimuthReal + " latitude "
+				+ mMyLatitude + " longitude " + mMyLongitude);
+	}
+
 	@Override
 	public void onLocationChanged(Location location) {
 		mMyLatitude = location.getLatitude();
 		mMyLongitude = location.getLongitude();
-		descriptionTextView.setText(mPoi.getPoiName() + " azimuthTeoretical "
-				+ mAzimuthTeoretical + " azimuthReal " + mAzimuthReal + " latitude "
-				+ mMyLatitude + " longitude " + mMyLongitude);
 		mAzimuthTeoretical = calculateTeoreticalAzimuth();
 		Toast.makeText(this,"latitude: "+location.getLatitude()+" longitude: "+location.getLongitude(), Toast.LENGTH_SHORT).show();
+		updateDescription();
 	}
 
 	@Override
@@ -140,9 +144,7 @@ public class CameraViewActivity extends Activity implements
 			pointerIcon.setVisibility(View.INVISIBLE);
 		}
 
-		descriptionTextView.setText(mPoi.getPoiName() + " mAzimuthTeoretical "
-				+ mAzimuthTeoretical + " mAzimuthReal " + mAzimuthReal + " mMyLatitude "
-				+ mMyLatitude + " lon " + mMyLongitude);
+		updateDescription();
 	}
 
 	@Override
@@ -167,7 +169,6 @@ public class CameraViewActivity extends Activity implements
 		myCurrentAzimuth = new MyCurrentAzimuth(this, this);
 		myCurrentAzimuth.start();
 	}
-
 
 	private void setupLayout() {
 		descriptionTextView = (TextView) findViewById(R.id.cameraTextView);
