@@ -6,7 +6,6 @@ import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.location.Location;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -17,28 +16,29 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * Created by krzysztofjackowski on 24/09/15.
+ */
 public class CameraViewActivity extends Activity implements
-		SurfaceHolder.Callback, MyCurrentLocationListener, OnAzimuthChangedListener{
+		SurfaceHolder.Callback, OnLocationChangedListener, OnAzimuthChangedListener{
 
-	private Camera camera;
-	private SurfaceHolder surfaceHolder;
-	private boolean cameraview = false;
-	private AugmentedPOI poi;
+	private Camera mCamera;
+	private SurfaceHolder mSurfaceHolder;
+	private boolean isCameraviewOn = false;
+	private AugmentedPOI mPoi;
 
-	private double azimuthReal = 0;
-	private double azimuthTeoretical = 0;
-	private double AZIMUTH_ACCURACY = 5;
-	private double lat = 0;
-	private double longi = 0;
+	private double mAzimuthReal = 0;
+	private double mAzimuthTeoretical = 0;
+	private static double AZIMUTH_ACCURACY = 5;
+	private double mMyLatitude = 0;
+	private double mMyLongitude = 0;
 
 	private MyCurrentAzimuth myCurrentAzimuth;
 	private MyCurrentLocation myCurrentLocation;
 
-	TextView cameraText;
-	ImageView icon;
+	TextView descriptionTextView;
+	ImageView pointerIcon;
 
-	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -51,106 +51,98 @@ public class CameraViewActivity extends Activity implements
 	}
 
 	private void setAugmentedRealityPoint() {
-		poi = new AugmentedPOI(
-				"Zamek Ojców", //poiName
-				"Opis Zamku Ojców", //poiDesc
-				50.21184861660004, //poiLat
-				19.83051002025604 //poiLongi
+		mPoi = new AugmentedPOI(
+				"Kościół Marciacki",
+				"Kościół Marciacki w Krakowie",
+				50.06169631,
+				19.93919566
 		);
 	}
 
 	public double calculateTeoreticalAzimuth() {
-		Location myLocation = new Location("MyLocation");
-		myLocation.setLatitude(lat);
-		myLocation.setLongitude(longi);
+		double dX = mPoi.getPoiLatitude() - mMyLatitude;
+		double dY = mPoi.getPoiLongitude() - mMyLongitude;
 
-		Location locationB = new Location("POI");
-		locationB.setLatitude(poi.getPoiLatitude());
-		locationB.setLongitude(poi.getPoiLongitude());
+		double phiAngle;
+		double tanPhi;
+		double azimuth = 0;
 
-		double dX = locationB.getLatitude() - myLocation.getLatitude();
-		double dY = locationB.getLongitude() - myLocation.getLongitude();
-
-		double fi;
-		double tanFi;
-		double A = 0;
-
-		tanFi = Math.abs(dY / dX);
-		fi = Math.atan(tanFi);
-		fi = Math.toDegrees(fi);
+		tanPhi = Math.abs(dY / dX);
+		phiAngle = Math.atan(tanPhi);
+		phiAngle = Math.toDegrees(phiAngle);
 
 		if (dX > 0 && dY > 0) { // I quater
-			return A = fi;
+			return azimuth = phiAngle;
 		} else if (dX < 0 && dY > 0) { // II
-			return A = 180 - fi;
+			return azimuth = 180 - phiAngle;
 		} else if (dX < 0 && dY < 0) { // III
-			return A = 180 + fi;
+			return azimuth = 180 + phiAngle;
 		} else if (dX > 0 && dY < 0) { // IV
-			return A = 360 - fi;
+			return azimuth = 360 - phiAngle;
 		}
 
-		return fi;
+		return phiAngle;
 	}
 	
-	private List<Double> calculateAzimuthAccuracy(double A) {
-		double min = A - AZIMUTH_ACCURACY;
-		double max = A + AZIMUTH_ACCURACY;
+	private List<Double> calculateAzimuthAccuracy(double azimuth) {
+		double minAngle = azimuth - AZIMUTH_ACCURACY;
+		double maxAngle = azimuth + AZIMUTH_ACCURACY;
 		List<Double> minMax = new ArrayList<Double>();
 
-		if (min < 0)
-			min += 360;
+		if (minAngle < 0)
+			minAngle += 360;
 
-		if (max >= 360)
-			max -= 360;
+		if (maxAngle >= 360)
+			maxAngle -= 360;
+
 		minMax.clear();
-		minMax.add(min);
-		minMax.add(max);
+		minMax.add(minAngle);
+		minMax.add(maxAngle);
+
 		return minMax;
 	}
 
-	private boolean isBetween(double min, double max, double A) {
-		if (min > max) {
-			if (isBetween(0, max, A) && isBetween(min, 360, A))
+	private boolean isBetween(double minAngle, double maxAngle, double azimuth) {
+		if (minAngle > maxAngle) {
+			if (isBetween(0, maxAngle, azimuth) && isBetween(minAngle, 360, azimuth))
 				return true;
 		} else {
-			if (A > min && A < max)
+			if (azimuth > minAngle && azimuth < maxAngle)
 				return true;
 		}
 		return false;
 	}
 
 	@Override
-	public void getCurrentLocation(Location location) {
-		lat = location.getLatitude();
-		longi = location.getLongitude();
-		cameraText.setText(poi.getPoiName() + " azimuthTeoretical "
-				+ azimuthTeoretical + " azimuthReal " + azimuthReal + " lat "
-				+ lat + " lon " + longi);
-		azimuthTeoretical = calculateTeoreticalAzimuth();
+	public void onLocationChanged(Location location) {
+		mMyLatitude = location.getLatitude();
+		mMyLongitude = location.getLongitude();
+		descriptionTextView.setText(mPoi.getPoiName() + " azimuthTeoretical "
+				+ mAzimuthTeoretical + " azimuthReal " + mAzimuthReal + " latitude "
+				+ mMyLatitude + " longitude " + mMyLongitude);
+		mAzimuthTeoretical = calculateTeoreticalAzimuth();
 		Toast.makeText(this,"latitude: "+location.getLatitude()+" longitude: "+location.getLongitude(), Toast.LENGTH_SHORT).show();
-		Log.d("CurrentLocation", "latitude: " + location.getLatitude() + " longitude: " + location.getLongitude());
 	}
 
 	@Override
-	public void onAzimuthChanged(float azimuthFrom, float azimuthTo) {
-		azimuthReal = azimuthTo;
-		azimuthTeoretical = calculateTeoreticalAzimuth();
+	public void onAzimuthChanged(float azimuthChangedFrom, float azimuthChangedTo) {
+		mAzimuthReal = azimuthChangedTo;
+		mAzimuthTeoretical = calculateTeoreticalAzimuth();
 
-		icon = (ImageView) findViewById(R.id.icon);
+		pointerIcon = (ImageView) findViewById(R.id.icon);
 
-		double min = calculateAzimuthAccuracy(azimuthTeoretical).get(0);
-		double max = calculateAzimuthAccuracy(azimuthTeoretical).get(1);
-		boolean t;
-		if (isBetween(min, max, azimuthReal)) {
-			icon.setVisibility(View.VISIBLE);
+		double minAngle = calculateAzimuthAccuracy(mAzimuthTeoretical).get(0);
+		double maxAngle = calculateAzimuthAccuracy(mAzimuthTeoretical).get(1);
+
+		if (isBetween(minAngle, maxAngle, mAzimuthReal)) {
+			pointerIcon.setVisibility(View.VISIBLE);
 		} else {
-			icon.setVisibility(View.INVISIBLE);
+			pointerIcon.setVisibility(View.INVISIBLE);
 		}
 
-		cameraText.setText(poi.getPoiName() + " azimuthTeoretical "
-				+ azimuthTeoretical + " azimuthReal " + azimuthReal + " lat "
-				+ lat + " lon " + longi);
-		Log.d("CurrentAzimuth", "azimuth: " + azimuthTo);
+		descriptionTextView.setText(mPoi.getPoiName() + " mAzimuthTeoretical "
+				+ mAzimuthTeoretical + " mAzimuthReal " + mAzimuthReal + " mMyLatitude "
+				+ mMyLatitude + " lon " + mMyLongitude);
 	}
 
 	@Override
@@ -178,33 +170,29 @@ public class CameraViewActivity extends Activity implements
 
 
 	private void setupLayout() {
-		cameraText = (TextView) findViewById(R.id.cameraTextView);
+		descriptionTextView = (TextView) findViewById(R.id.cameraTextView);
 
-		/** Set surface for camera view*/
 		getWindow().setFormat(PixelFormat.UNKNOWN);
 		SurfaceView surfaceView = (SurfaceView) findViewById(R.id.cameraview);
-		surfaceHolder = surfaceView.getHolder();
-		surfaceHolder.addCallback(this);
-		surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+		mSurfaceHolder = surfaceView.getHolder();
+		mSurfaceHolder.addCallback(this);
+		mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 	}
 
-	//////////////////**Methods responsible for the camera view */////////////////////
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 							   int height) {
-
-		if (cameraview) {
-			camera.stopPreview();
-			cameraview = false;
+		if (isCameraviewOn) {
+			mCamera.stopPreview();
+			isCameraviewOn = false;
 		}
 
-		if (camera != null) {
+		if (mCamera != null) {
 			try {
-				camera.setPreviewDisplay(surfaceHolder);
-				camera.startPreview();
-				cameraview = true;
+				mCamera.setPreviewDisplay(mSurfaceHolder);
+				mCamera.startPreview();
+				isCameraviewOn = true;
 			} catch (IOException e) {
-
 				e.printStackTrace();
 			}
 		}
@@ -212,17 +200,15 @@ public class CameraViewActivity extends Activity implements
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
-
-		camera = Camera.open();
-		camera.setDisplayOrientation(90);
+		mCamera = Camera.open();
+		mCamera.setDisplayOrientation(90);
 	}
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
-
-		camera.stopPreview();
-		camera.release();
-		camera = null;
-		cameraview = false;
+		mCamera.stopPreview();
+		mCamera.release();
+		mCamera = null;
+		isCameraviewOn = false;
 	}
 }

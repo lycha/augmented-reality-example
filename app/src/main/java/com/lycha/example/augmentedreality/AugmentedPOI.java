@@ -1,48 +1,50 @@
 package com.lycha.example.augmentedreality;
-
+/**
+ * Created by krzysztofjackowski on 24/09/15.
+ */
 public class AugmentedPOI {
-	private int poiId;
-	private String poiName;
-	private String poiDescription;
-	private double poiLatitude;
-	private double poiLongitude;
+	private int mId;
+	private String mName;
+	private String mDescription;
+	private double mLatitude;
+	private double mLongitude;
 	
 	public AugmentedPOI(String newName, String newDescription,
 						double newLatitude, double newLongitude) {
-		this.poiName = newName;
-        this.poiDescription = newDescription;
-        this.poiLatitude = newLatitude;
-        this.poiLongitude = newLongitude;
+		this.mName = newName;
+        this.mDescription = newDescription;
+        this.mLatitude = newLatitude;
+        this.mLongitude = newLongitude;
 	}
 	
 	public int getPoiId() {
-		return poiId;
+		return mId;
 	}
 	public void setPoiId(int poiId) {
-		this.poiId = poiId;
+		this.mId = poiId;
 	}
 	public String getPoiName() {
-		return poiName;
+		return mName;
 	}
 	public void setPoiName(String poiName) {
-		this.poiName = poiName;
+		this.mName = poiName;
 	}
 	public String getPoiDescription() {
-		return poiDescription;
+		return mDescription;
 	}
 	public void setPoiDescription(String poiDescription) {
-		this.poiDescription = poiDescription;
+		this.mDescription = poiDescription;
 	}
 	public double getPoiLatitude() {
-		return poiLatitude;
+		return mLatitude;
 	}
 	public void setPoiLatitude(double poiLatitude) {
-		this.poiLatitude = poiLatitude;
+		this.mLatitude = poiLatitude;
 	}
 	public double getPoiLongitude() {
-		return poiLongitude;
+		return mLongitude;
 	}
 	public void setPoiLongitude(double poiLongitude) {
-		this.poiLongitude = poiLongitude;
+		this.mLongitude = poiLongitude;
 	}
 }

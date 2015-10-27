@@ -13,8 +13,8 @@ public class MyCurrentAzimuth implements SensorEventListener {
 
     private SensorManager sensorManager;
     private Sensor sensor;
-    private int azimuthFrom = 0; // degree
-    private int azimuthTo = 0; // degree
+    private int azimuthFrom = 0;
+    private int azimuthTo = 0;
     private OnAzimuthChangedListener mAzimuthListener;
     Context mContext;
 

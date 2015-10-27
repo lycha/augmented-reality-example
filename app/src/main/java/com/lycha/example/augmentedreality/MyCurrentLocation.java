@@ -19,10 +19,10 @@ public class MyCurrentLocation implements GoogleApiClient.ConnectionCallbacks, G
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     private LocationRequest mLocationRequest;
-    private MyCurrentLocationListener myCurrentLocationListener;
+    private OnLocationChangedListener onLocationChangedListener;
 
-    public MyCurrentLocation(MyCurrentLocationListener myCurrentLocationListener) {
-        this.myCurrentLocationListener = myCurrentLocationListener;
+    public MyCurrentLocation(OnLocationChangedListener onLocationChangedListener) {
+        this.onLocationChangedListener = onLocationChangedListener;
     }
 
     protected synchronized void buildGoogleApiClient(Context context) {
@@ -51,7 +51,7 @@ public class MyCurrentLocation implements GoogleApiClient.ConnectionCallbacks, G
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
         if (mLastLocation != null) {
-            myCurrentLocationListener.getCurrentLocation(mLastLocation);
+            onLocationChangedListener.onLocationChanged(mLastLocation);
         }
     }
 
@@ -62,7 +62,7 @@ public class MyCurrentLocation implements GoogleApiClient.ConnectionCallbacks, G
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.i("MyApp", "Location services connection failed with code " + connectionResult.getErrorCode());
+        Log.e("MyApp", "Location services connection failed with code " + connectionResult.getErrorCode());
     }
 
     @Override
@@ -70,7 +70,7 @@ public class MyCurrentLocation implements GoogleApiClient.ConnectionCallbacks, G
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
         if (mLastLocation != null) {
-            myCurrentLocationListener.getCurrentLocation(mLastLocation);
+            onLocationChangedListener.onLocationChanged(mLastLocation);
         }
     }
 }
