@@ -67,10 +67,7 @@ public class MyCurrentLocation implements GoogleApiClient.ConnectionCallbacks, G
 
     @Override
     public void onLocationChanged(Location location) {
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                mGoogleApiClient);
-        if (mLastLocation != null) {
-            onLocationChangedListener.onLocationChanged(mLastLocation);
-        }
+        onLocationChangedListener.onLocationChanged(location);
+        mLastLocation = location;
     }
 }
