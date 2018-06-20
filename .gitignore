@@ -1,0 +1,42 @@
+.gradle
+/local.properties
+!settings.gradle
+.DS_Store
+/captures
+Makiety/Thumbs.db
+app/src/main/res/drawable-hdpi/Thumbs.db
+app/src/main/res/drawable-ldpi/Thumbs.db
+app/src/main/res/drawable-mdpi/Thumbs.db
+app/src/main/res/drawable-xhdpi/Thumbs.db
+app/src/main/res/drawable-xxhdpi/Thumbs.db
+app/src/main/res/drawable-xxxhdpi/Thumbs.db
+*.iml
+keystore.properties
+
+# built application files
+*.apk
+
+# Application secrets are obtained from gradle.properties in local builds
+/gradle.properties
+
+# generated files
+bin/
+bin
+gen
+gen/
+
+# Eclipse project files
+.classpath
+.project
+
+# Android Studio
+.idea/
+/*/local.properties
+/*/out
+/*/*/build
+build
+/*/*/production
+*.iws
+*.ipr
+*~
+*.swp
